@@ -10,7 +10,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 export default function App() {
   const Tab = createBottomTabNavigator();
   const pokemonListIcon = require("./assets/pokemon-list-icon.png");
-  const [favouritePokemon, setFavouritePokemon] = React.useState("kakuna");
+  const [favouritePokemon, setFavouritePokemon] = React.useState(null);
 
   return (
     <NavigationContainer>
@@ -81,36 +81,36 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  image: {
-    maxHeight: 320,
-    maxWidth: 320,
-    height: 320,
-    width: 320,
-    borderRadius: 18,
-  },
-  someScreen: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  button: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  buttonContainer: {
-    height: 20,
-    width: 120,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  // container: {
+  //   flex: 1,
+  //   backgroundColor: "#fff",
+  //   alignItems: "center",
+  //   justifyContent: "center",
+  // },
+  // image: {
+  //   maxHeight: 320,
+  //   maxWidth: 320,
+  //   height: 320,
+  //   width: 320,
+  //   borderRadius: 18,
+  // },
+  // someScreen: {
+  //   flex: 1,
+  //   alignItems: "center",
+  //   justifyContent: "center",
+  // },
+  // button: {
+  //   width: "100%",
+  //   height: "100%",
+  //   justifyContent: "center",
+  //   alignItems: "center",
+  // },
+  // buttonContainer: {
+  //   height: 20,
+  //   width: 120,
+  //   justifyContent: "center",
+  //   alignItems: "center",
+  // },
   icon: {
     height: 28,
     width: 28,

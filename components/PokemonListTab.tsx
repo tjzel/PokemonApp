@@ -6,18 +6,30 @@ import {
   Pressable,
   Image,
 } from "react-native";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Dispatch } from "react";
 import { FontAwesome } from "@expo/vector-icons";
+
+interface Props {
+  favouritePokemon: string | number | null;
+  setFavouritePokemon: Dispatch<string | number | null>;
+}
+
+interface PokemonListElement {
+  name: string;
+  url: string;
+}
 
 export default function PokemonListTab({
   favouritePokemon,
   setFavouritePokemon,
-}) {
-  const [pokemonList, setPokemonList] = useState([]); //should be a ref?
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const offsetRef = useRef(0);
-  const limit = 20;
+}: Props) {
+  const [pokemonList, setPokemonList] = useState<Array<PokemonListElement>>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [hotLoading, setHotLoading] = useState<boolean>(true);
+  const [error, setError] = useState<unknown>();
+  const offsetRef = useRef<number>(0);
+  const listLoaded = useRef<boolean>(false);
+  const limit = 40;
 
   const imageLinkPrefix =
     "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
@@ -30,52 +42,54 @@ export default function PokemonListTab({
         );
         const data = await response.json();
         setPokemonList(data.results);
-        console.log(offsetRef.current);
         offsetRef.current += limit;
-        console.log(offsetRef.current);
         setLoading(false);
       } catch (e) {
+        setError(e);
+        setLoading(false);
         console.log(e);
       }
-    })(); // IIFE
+    })();
   }, []);
 
-  async function loadMore() {
-    try {
-      const response = await fetch(
-        "https://pokeapi.co/api/v2/pokemon/?limit=" +
-          limit +
-          "&offset=" +
-          offsetRef.current
-      );
-      console.log(
-        // "https://pokeapi.co/api/v2/pokemon/?limit=" +
-        //   limit +
-        //   "&offset=" +
-        //   offsetRef.current
-        `https://pokeapi.co/api/v2/pokemon/?limit=${limit}&offset=${offsetRef.current}`
-      );
-      const data = await response.json();
-      setPokemonList(Array.prototype.concat(pokemonList, data.results));
-      console.log(offsetRef.current);
-      offsetRef.current += limit;
-      console.log(offsetRef.current);
-      //setLoading(false);
-    } catch (e) {
-      console.log(e);
-    }
+  function loadMore() {
+    if (listLoaded.current) return;
+    setHotLoading(true);
+    (async () => {
+      try {
+        const response = await fetch(
+          `https://pokeapi.co/api/v2/pokemon/?limit=${limit}&offset=${offsetRef.current}`
+        );
+        const data = await response.json();
+        const count = data.results.length;
+        setPokemonList(Array.prototype.concat(pokemonList, data.results));
+        if (count == limit) offsetRef.current += limit;
+        else listLoaded.current = true;
+        setHotLoading(false);
+      } catch (e) {
+        setError(e);
+        setHotLoading(false);
+        console.log(e);
+      }
+    })();
+  }
+
+  function footer() {
+    if (listLoaded.current) return <Text>List loaded!</Text>;
+    return <Text>Loading</Text>;
   }
 
   return (
     <View style={styles.listContainer}>
       {loading && <Text>...</Text>}
-      {error !== null && <Text>Error...</Text>}
+      {error != undefined && <Text>Error...</Text>}
       {
         <FlatList
           data={pokemonList}
           keyExtractor={(item) => item.name}
-          onEndReachedThreshold={0.1}
+          onEndReachedThreshold={0.9}
           onEndReached={loadMore}
+          ListFooterComponent={footer}
           renderItem={({ item }) => {
             const urlSplit = item.url.split("/");
             const id = urlSplit[urlSplit.length - 2];
@@ -95,7 +109,7 @@ export default function PokemonListTab({
                   <Image
                     style={styles.pokemonIcon}
                     source={{ uri: imageLink }}
-                    // defaultSource={}
+                    defaultSource={{ uri: require("../assets/loading.gif") }}
                   />
                 </View>
               );

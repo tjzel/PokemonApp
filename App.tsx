@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 import { StyleSheet, Text, View, Image, Pressable } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -10,7 +10,9 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 export default function App() {
   const Tab = createBottomTabNavigator();
   const pokemonListIcon = require("./assets/pokemon-list-icon.png");
-  const [favouritePokemon, setFavouritePokemon] = React.useState(null);
+  const [favouritePokemon, setFavouritePokemon] = useState<
+    string | number | null
+  >(null);
 
   return (
     <NavigationContainer>

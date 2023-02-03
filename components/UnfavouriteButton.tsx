@@ -1,15 +1,12 @@
-import { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  FlatList,
-  Pressable,
-} from "react-native";
+import { Dispatch, useState } from "react";
+import { StyleSheet, Text, Pressable } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 
-export default function UnfavouriteButton({ setFavouritePokemon }) {
+interface Props {
+  setFavouritePokemon: Dispatch<string | number | null>;
+}
+
+export default function UnfavouriteButton({ setFavouritePokemon }: Props) {
   const [inProgress, setInProgress] = useState(false);
 
   if (inProgress == false)

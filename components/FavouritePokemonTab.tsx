@@ -1,15 +1,33 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Dispatch } from "react";
 import { StyleSheet, Text, View, Image, FlatList } from "react-native";
 import UnfavouriteButton from "./UnfavouriteButton";
+
+interface Props {
+  favouritePokemon: string | number | null;
+  setFavouritePokemon: Dispatch<string | number | null>;
+}
+
+interface Type {
+  name: string;
+}
+
+interface PokemonData {
+  name: string;
+  height: number;
+  weight: number;
+  types: Array<{
+    [key: string]: Type;
+  }>;
+}
 
 export default function FavouritePokemonTab({
   favouritePokemon,
   setFavouritePokemon,
-}) {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [imageLink, setImageLink] = useState(null);
-  const [pokemonData, setPokemonData] = useState(null);
+}: Props) {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<unknown>();
+  const [imageLink, setImageLink] = useState<string>();
+  const [pokemonData, setPokemonData] = useState<PokemonData>();
   const imageLinkPrefix =
     "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
   useEffect(() => {
@@ -22,7 +40,7 @@ export default function FavouritePokemonTab({
           "https://pokeapi.co/api/v2/pokemon/" + favouritePokemon
         );
         const data = await response.json();
-        setImageLink(imageLinkPrefix + data.id + ".png");
+        setImageLink(`${imageLinkPrefix}${data.id}.png`);
         setPokemonData(data);
         setLoading(false);
       } catch (e) {
@@ -50,34 +68,39 @@ export default function FavouritePokemonTab({
         <Text style={styles.noPokemonText}>Loading...</Text>
       </View>
     );
-  return (
-    <View style={styles.favouriteContainer}>
-      <Text style={styles.pokemonText}>{favouritePokemon}</Text>
-      <Image style={styles.favouritePokemonImage} source={{ uri: imageLink }} />
-      <View>
-        <Text>height: {pokemonData.height * 10}cm</Text>
-        <Text>
-          weight:{" "}
-          {pokemonData.weight > 10
-            ? String(pokemonData.weight / 10) + "kg"
-            : pokemonData * 100 + "g"}
-        </Text>
-        <View style={styles.listContainer}>
-          <View style={styles.listHeader}>
-            <Text>Types: </Text>
+  if (pokemonData)
+    return (
+      <View style={styles.favouriteContainer}>
+        <Text style={styles.pokemonText}>{favouritePokemon}</Text>
+        <Image
+          style={styles.favouritePokemonImage}
+          source={{ uri: imageLink }}
+        />
+        <View>
+          <Text>height: {pokemonData.height * 10}cm</Text>
+          <Text>
+            weight:
+            {pokemonData.weight > 10
+              ? String(pokemonData.weight / 10) + "kg"
+              : String(pokemonData.weight * 100) + "g"}
+          </Text>
+          <View style={styles.listContainer}>
+            <View style={styles.listHeader}>
+              <Text>Types: </Text>
+            </View>
+            <FlatList
+              data={pokemonData.types}
+              keyExtractor={(item) => item.type.name}
+              renderItem={({ item }) => (
+                <Text style={styles.listItem}>{item.type.name}</Text>
+              )}
+            />
           </View>
-          <FlatList
-            data={pokemonData.types}
-            keyExtractor={(item) => item.type.name}
-            renderItem={({ item }) => (
-              <Text style={styles.listItem}>{item.type.name}</Text>
-            )}
-          />
         </View>
+        <UnfavouriteButton setFavouritePokemon={setFavouritePokemon} />
       </View>
-      <UnfavouriteButton setFavouritePokemon={setFavouritePokemon} />
-    </View>
-  );
+    );
+  return null;
 }
 
 const styles = StyleSheet.create({

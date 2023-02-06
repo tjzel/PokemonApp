@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
-import { View, StyleSheet, Modal, Text, Alert, Pressable } from "react-native";
-import MapView, { LatLng, Marker, Point } from "react-native-maps";
+import React, { useRef, useState } from "react";
+import { View, StyleSheet, Modal, Text, Image } from "react-native";
+import MapView, { Callout, LatLng, Marker } from "react-native-maps";
 import PinPokemonMenu from "./PinPokemonMenu";
 
 export interface MarkerData {
@@ -12,28 +12,10 @@ export interface MarkerData {
 export default function PokemonMapTab() {
   const [markers, setMarkers] = useState<Array<MarkerData>>([]);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [favouriteVisible, setFavouriteVisible] = useState<boolean>(false);
   const coords = useRef<LatLng>({ longitude: 0, latitude: 0 });
 
-  // useEffect(() => {
-  //   const m: MarkerData = {
-  //     latlng: {
-  //       latitude: 50.0486442,
-  //       longitude: 19.9654474,
-  //     },
-  //     title: "debug",
-  //     description: "debug",
-  //   };
-  //   setMarkers([m]);
-  // }, []);
-
-  // idealnie, to modal się mountuje po long pressie i potem unmountuje, ale nie umiem tego teraz zrobić
-
   function addMarker(coordinates: LatLng) {
-    // const m: MarkerData = {
-    //   latlng: coordinates,
-    // };
-    // setMarkers(Array.prototype.concat(markers, [m]));
-    // console.log("long press!");
     coords.current = coordinates;
     setModalVisible(true);
   }
@@ -77,10 +59,28 @@ export default function PokemonMapTab() {
           <Marker
             key={index}
             coordinate={marker.latlng}
-            title={marker.name}
-            image={{ width: 20, height: 20, uri: marker.url }} // refuses to get sized...
+            // title={marker.name}
+            // image={{ width: 20, height: 20, uri: marker.url }} // refuses to get sized...
             draggable={true}
-          />
+          >
+            <Callout>
+              <View style={{ flex: 1, alignItems: "center" }}>
+                <Text
+                  style={{
+                    textTransform: "uppercase",
+                    backgroundColor: "white",
+                    textAlign: "center",
+                  }}
+                >
+                  {marker.name}
+                </Text>
+                <Image
+                  source={{ uri: marker.url }}
+                  style={styles.pinDescImage}
+                />
+              </View>
+            </Callout>
+          </Marker>
         ))}
       </MapView>
       {<PinPokemonModal />}
@@ -95,6 +95,10 @@ const styles = StyleSheet.create({
   map: {
     width: "100%",
     height: "100%",
+  },
+  pinDescImage: {
+    width: 64,
+    height: 64,
   },
   addMarkerContainer: {
     flex: 1,

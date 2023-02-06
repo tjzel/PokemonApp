@@ -1,6 +1,22 @@
 import { useState, useEffect, Dispatch } from "react";
 import { StyleSheet, Text, View, Image, FlatList } from "react-native";
 import UnfavouriteButton from "./UnfavouriteButton";
+import Animated, {
+  Easing,
+  SlideInLeft,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
+import { PanGesture } from "react-native-gesture-handler/lib/typescript/handlers/gestures/panGesture";
+import { PinchGesture } from "react-native-gesture-handler/lib/typescript/handlers/gestures/pinchGesture";
 
 interface Props {
   favouritePokemon: string | number | null;
@@ -50,6 +66,48 @@ export default function FavouritePokemonTab({
     })();
   }, [favouritePokemon]);
 
+  const progress = useSharedValue(0);
+  // const [x,y] = useSharedValue
+
+  useEffect(() => {
+    progress.value = 0;
+    progress.value = withRepeat(
+      withTiming(1, { duration: 5000, easing: Easing.linear }),
+      -1
+    );
+  }, []);
+
+  const x = useSharedValue(0);
+  const y = useSharedValue(0);
+  const scale = useSharedValue(1);
+
+  const panGesture = Gesture.Pan()
+    // .onBegin(() => console.log("on begin"))
+    // .onStart(() => console.log("on start"))
+    .onChange((e) => {
+      x.value += e.changeX / Math.log2(2 + Math.abs(x.value));
+      y.value += e.changeY / Math.log2(2 + Math.abs(y.value));
+    })
+    // .onUpdate((e) => console.log(e.absoluteX))
+    .onEnd(() => ((x.value = withSpring(0)), (y.value = withSpring(0))));
+  // .onFinalize(() => console.log("on finalize"));
+
+  const pinchGesture = Gesture.Pinch().onChange((e) => {
+    //scale.value *= e.scaleChange;
+  });
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { scaleX: 1 + Math.abs(x.value) / 64 },
+        { scaleY: 1 + Math.abs(y.value) / 64 },
+        { translateX: x.value },
+        { translateY: y.value },
+        // { scale: scale.value },
+      ],
+    };
+  });
+
   if (favouritePokemon == null)
     return (
       <View style={styles.container}>
@@ -72,11 +130,16 @@ export default function FavouritePokemonTab({
     return (
       <View style={styles.favouriteContainer}>
         <Text style={styles.pokemonText}>{favouritePokemon}</Text>
-        <Image
-          style={styles.favouritePokemonImage}
-          source={{ uri: imageLink }}
-        />
-        <View>
+        <GestureDetector
+          gesture={Gesture.Simultaneous(panGesture, pinchGesture)}
+        >
+          <Animated.Image
+            key={favouritePokemon}
+            style={[styles.favouritePokemonImage, animatedStyle]}
+            source={{ uri: imageLink }}
+          />
+        </GestureDetector>
+        <View style={{ zIndex: 0 }}>
           <Text>height: {pokemonData.height * 10}cm</Text>
           <Text>
             weight:
@@ -119,6 +182,7 @@ const styles = StyleSheet.create({
   favouritePokemonImage: {
     width: 256,
     height: 256,
+    zIndex: 10,
   },
   pokemonText: {
     textAlign: "center",

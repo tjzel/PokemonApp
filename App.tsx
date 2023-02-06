@@ -7,6 +7,7 @@ import FavouritePokemonTab from "./components/FavouritePokemonTab";
 import PokemonListTab from "./components/PokemonListTab";
 import PokemonMapTab from "./components/PokemonMapTap";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function App() {
   const Tab = createBottomTabNavigator();
@@ -16,70 +17,72 @@ export default function App() {
   >(null);
 
   return (
-    <NavigationContainer>
-      <Tab.Navigator initialRouteName="Favourite Pokemon">
-        <Tab.Screen
-          name="Favourite Pokemon"
-          options={{
-            tabBarIcon: () => {
-              return (
-                <Image
-                  style={[styles.icon]}
-                  source={{
-                    uri: "https://cdn-icons-png.flaticon.com/512/287/287221.png",
-                  }}
-                />
-              );
-            },
-          }}
-        >
-          {(props) => (
-            <FavouritePokemonTab
-              favouritePokemon={favouritePokemon}
-              setFavouritePokemon={setFavouritePokemon}
-              {...props}
-            />
-          )}
-        </Tab.Screen>
-        <Tab.Screen
-          name="Pokemon List"
-          options={{
-            tabBarIcon: () => {
-              return (
-                <Image
-                  style={[styles.icon, { width: 48 }]}
-                  source={pokemonListIcon}
-                />
-              );
-            },
-          }}
-        >
-          {(props) => (
-            <PokemonListTab
-              favouritePokemon={favouritePokemon}
-              setFavouritePokemon={setFavouritePokemon}
-              {...props}
-            />
-          )}
-        </Tab.Screen>
-        <Tab.Screen
-          name="Pokemon Map"
-          component={PokemonMapTab}
-          options={{
-            tabBarIcon: () => {
-              return (
-                <Image
-                  style={[styles.icon]}
-                  source={{
-                    uri: "https://cdn0.iconfinder.com/data/icons/pokemon-go-vol-2/135/_Pokemon_Location-512.png",
-                  }}
-                />
-              );
-            },
-          }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <Tab.Navigator initialRouteName="Favourite Pokemon">
+          <Tab.Screen
+            name="Favourite Pokemon"
+            options={{
+              tabBarIcon: () => {
+                return (
+                  <Image
+                    style={[styles.icon]}
+                    source={{
+                      uri: "https://cdn-icons-png.flaticon.com/512/287/287221.png",
+                    }}
+                  />
+                );
+              },
+            }}
+          >
+            {(props) => (
+              <FavouritePokemonTab
+                favouritePokemon={favouritePokemon}
+                setFavouritePokemon={setFavouritePokemon}
+                {...props}
+              />
+            )}
+          </Tab.Screen>
+          <Tab.Screen
+            name="Pokemon List"
+            options={{
+              tabBarIcon: () => {
+                return (
+                  <Image
+                    style={[styles.icon, { width: 48 }]}
+                    source={pokemonListIcon}
+                  />
+                );
+              },
+            }}
+          >
+            {(props) => (
+              <PokemonListTab
+                favouritePokemon={favouritePokemon}
+                setFavouritePokemon={setFavouritePokemon}
+                {...props}
+              />
+            )}
+          </Tab.Screen>
+          <Tab.Screen
+            name="Pokemon Map"
+            component={PokemonMapTab}
+            options={{
+              tabBarIcon: () => {
+                return (
+                  <Image
+                    style={[styles.icon]}
+                    source={{
+                      uri: "https://cdn0.iconfinder.com/data/icons/pokemon-go-vol-2/135/_Pokemon_Location-512.png",
+                    }}
+                  />
+                );
+              },
+            }}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }
 

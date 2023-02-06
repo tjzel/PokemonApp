@@ -9,6 +9,7 @@ import Animated, {
   withRepeat,
   withSpring,
   withTiming,
+  runOnJS,
 } from "react-native-reanimated";
 import {
   Gesture,
@@ -40,10 +41,12 @@ export default function FavouritePokemonTab({
   favouritePokemon,
   setFavouritePokemon,
 }: Props) {
+  const [forceRerender, setForceRerender] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<unknown>();
   const [imageLink, setImageLink] = useState<string>();
   const [pokemonData, setPokemonData] = useState<PokemonData>();
+  const [prev, setPrev] = useState<string | number | null>(null);
   const imageLinkPrefix =
     "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
   useEffect(() => {
@@ -58,6 +61,13 @@ export default function FavouritePokemonTab({
         const data = await response.json();
         setImageLink(`${imageLinkPrefix}${data.id}.png`);
         setPokemonData(data);
+        console.log(data.species.url);
+        const speciesResponse = await fetch(`${data.species.url}`);
+        const speciesData = await speciesResponse.json();
+        console.log(speciesData.evolves_from_species);
+        if (speciesData.evolves_from_species)
+          setPrev(speciesData.evolves_from_species.name);
+        else setPrev(null);
         setLoading(false);
       } catch (e) {
         setError(e);
@@ -66,44 +76,46 @@ export default function FavouritePokemonTab({
     })();
   }, [favouritePokemon]);
 
-  const progress = useSharedValue(0);
-  // const [x,y] = useSharedValue
-
-  useEffect(() => {
-    progress.value = 0;
-    progress.value = withRepeat(
-      withTiming(1, { duration: 5000, easing: Easing.linear }),
-      -1
-    );
-  }, []);
-
+  // const progress = useSharedValue(0);
   const x = useSharedValue(0);
   const y = useSharedValue(0);
-  const scale = useSharedValue(1);
+
+  // useEffect(() => {
+  //   progress.value = 0;
+  //   progress.value = withRepeat(
+  //     withTiming(1, { duration: 5000, easing: Easing.linear }),
+  //     -1
+  //   );
+  // }, []);
 
   const panGesture = Gesture.Pan()
-    // .onBegin(() => console.log("on begin"))
+    .onBegin(() => console.log("on begin"))
     // .onStart(() => console.log("on start"))
     .onChange((e) => {
-      x.value += e.changeX / Math.log2(2 + Math.abs(x.value));
-      y.value += e.changeY / Math.log2(2 + Math.abs(y.value));
+      x.value += e.changeX;
+      y.value += e.changeY;
+      if (Math.log2(2 + Math.abs(y.value) / 256) > 1.5) {
+        runOnJS(setFavouritePokemon)(prev);
+        runOnJS(setForceRerender)(!forceRerender);
+      }
     })
     // .onUpdate((e) => console.log(e.absoluteX))
-    .onEnd(() => ((x.value = withSpring(0)), (y.value = withSpring(0))));
-  // .onFinalize(() => console.log("on finalize"));
-
-  const pinchGesture = Gesture.Pinch().onChange((e) => {
-    //scale.value *= e.scaleChange;
-  });
+    .onEnd(() => ((x.value = withSpring(0)), (y.value = withSpring(0))))
+    .onFinalize(() => console.log("on finalize"));
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
       transform: [
-        { scaleX: 1 + Math.abs(x.value) / 64 },
-        { scaleY: 1 + Math.abs(y.value) / 64 },
-        { translateX: x.value },
-        { translateY: y.value },
-        // { scale: scale.value },
+        { scaleX: Math.log2(2 + Math.abs(x.value) / 256) },
+        { scaleY: Math.log2(2 + Math.abs(y.value) / 256) },
+        {
+          translateX:
+            Math.sign(x.value) * Math.log2(1 + Math.abs(x.value) ** 2),
+        },
+        {
+          translateY:
+            Math.sign(y.value) * Math.log2(1 + Math.abs(y.value) ** 2),
+        },
       ],
     };
   });
@@ -130,9 +142,7 @@ export default function FavouritePokemonTab({
     return (
       <View style={styles.favouriteContainer}>
         <Text style={styles.pokemonText}>{favouritePokemon}</Text>
-        <GestureDetector
-          gesture={Gesture.Simultaneous(panGesture, pinchGesture)}
-        >
+        <GestureDetector gesture={panGesture}>
           <Animated.Image
             key={favouritePokemon}
             style={[styles.favouritePokemonImage, animatedStyle]}
@@ -189,10 +199,6 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontWeight: "bold",
     textTransform: "uppercase",
-  },
-  pokemonImage: {
-    height: 256,
-    width: 256,
   },
   listItem: {
     textAlign: "left",

@@ -1,3 +1,4 @@
+import "./wdyr.tsx";
 import { useState } from "react";
 import { StyleSheet, Text, View, Image, Pressable } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";

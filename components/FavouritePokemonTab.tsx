@@ -37,7 +37,7 @@ export default function FavouritePokemonTab({
     (async () => {
       try {
         const response = await fetch(
-          "https://pokeapi.co/api/v2/pokemon/" + favouritePokemon
+          `https://pokeapi.co/api/v2/pokemon/${favouritePokemon}`
         );
         const data = await response.json();
         setImageLink(`${imageLinkPrefix}${data.id}.png`);

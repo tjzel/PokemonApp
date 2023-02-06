@@ -38,7 +38,7 @@ export default function PokemonListTab({
     (async () => {
       try {
         const response = await fetch(
-          "https://pokeapi.co/api/v2/pokemon?limit=" + limit
+          `https://pokeapi.co/api/v2/pokemon?limit=${limit}`
         );
         const data = await response.json();
         setPokemonList(data.results);
@@ -93,7 +93,7 @@ export default function PokemonListTab({
           renderItem={({ item }) => {
             const urlSplit = item.url.split("/");
             const id = urlSplit[urlSplit.length - 2];
-            const imageLink = imageLinkPrefix + id + ".png";
+            const imageLink = `${imageLinkPrefix}${id}.png`;
             if (item.name == favouritePokemon)
               return (
                 <View style={styles.listElement} key={item.name}>
@@ -109,7 +109,7 @@ export default function PokemonListTab({
                   <Image
                     style={styles.pokemonIcon}
                     source={{ uri: imageLink }}
-                    defaultSource={{ uri: require("../assets/loading.gif") }}
+                    defaultSource={require("../assets/loading.gif")}
                   />
                 </View>
               );

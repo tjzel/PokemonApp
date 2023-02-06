@@ -86,22 +86,20 @@ export default function FavouritePokemonTab({
   //     withTiming(1, { duration: 5000, easing: Easing.linear }),
   //     -1
   //   );
-  // }, []);
+  // }, [favouritePokemon]);
 
   const panGesture = Gesture.Pan()
-    .onBegin(() => console.log("on begin"))
-    // .onStart(() => console.log("on start"))
     .onChange((e) => {
       x.value += e.changeX;
       y.value += e.changeY;
-      if (Math.log2(2 + Math.abs(y.value) / 256) > 1.5) {
+      if (Math.log2(2 + Math.abs(y.value) / 256) > 1.7) {
         runOnJS(setFavouritePokemon)(prev);
         runOnJS(setForceRerender)(!forceRerender);
+        x.value = 0;
+        y.value = 0;
       }
     })
-    // .onUpdate((e) => console.log(e.absoluteX))
-    .onEnd(() => ((x.value = withSpring(0)), (y.value = withSpring(0))))
-    .onFinalize(() => console.log("on finalize"));
+    .onEnd(() => ((x.value = withSpring(0)), (y.value = withSpring(0))));
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -143,11 +141,13 @@ export default function FavouritePokemonTab({
       <View style={styles.favouriteContainer}>
         <Text style={styles.pokemonText}>{favouritePokemon}</Text>
         <GestureDetector gesture={panGesture}>
-          <Animated.Image
-            key={favouritePokemon}
-            style={[styles.favouritePokemonImage, animatedStyle]}
-            source={{ uri: imageLink }}
-          />
+          <View>
+            <Animated.Image
+              key={favouritePokemon}
+              style={[styles.favouritePokemonImage, animatedStyle]}
+              source={{ uri: imageLink }}
+            />
+          </View>
         </GestureDetector>
         <View style={{ zIndex: 0 }}>
           <Text>height: {pokemonData.height * 10}cm</Text>

@@ -16,6 +16,7 @@ import Animated, {
   withSpring,
   withTiming,
   runOnJS,
+  cancelAnimation,
 } from "react-native-reanimated";
 import {
   Gesture,
@@ -39,12 +40,17 @@ interface PokemonData {
   }>;
 }
 
+interface DevolveProps {
+  setAboutToDevolve: Dispatch<SetStateAction<boolean>>;
+  setFavouritePokemon: Dispatch<SetStateAction<string | number | null>>;
+}
+
 export default function FavouritePokemonTab() {
-  const [forceRerender, setForceRerender] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<unknown>();
   const [imageLink, setImageLink] = useState<string>();
   const [pokemonData, setPokemonData] = useState<PokemonData>();
+  const [aboutToDevolve, setAboutToDevolve] = useState<boolean>(false);
   const [prev, setPrev] = useState<string | number | null>(null);
   const imageLinkPrefix =
     "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
@@ -63,10 +69,8 @@ export default function FavouritePokemonTab() {
         const data = await response.json();
         setImageLink(`${imageLinkPrefix}${data.id}.png`);
         setPokemonData(data);
-        console.log(data.species.url);
         const speciesResponse = await fetch(`${data.species.url}`);
         const speciesData = await speciesResponse.json();
-        console.log(speciesData.evolves_from_species);
         if (speciesData.evolves_from_species)
           setPrev(speciesData.evolves_from_species.name);
         else setPrev(null);
@@ -78,9 +82,11 @@ export default function FavouritePokemonTab() {
     })();
   }, [favouritePokemon]);
 
-  // const progress = useSharedValue(0);
   const x = useSharedValue(0);
   const y = useSharedValue(0);
+  const displacementX = useSharedValue(0);
+  const displacementY = useSharedValue(0);
+  const scale = useSharedValue(1);
 
   // useEffect(() => {
   //   progress.value = 0;
@@ -94,31 +100,71 @@ export default function FavouritePokemonTab() {
     .onChange((e) => {
       x.value += e.changeX;
       y.value += e.changeY;
-      if (Math.log2(2 + Math.abs(y.value) / 256) > 1.7) {
-        runOnJS(setFavouritePokemon)(prev);
-        runOnJS(setForceRerender)(!forceRerender);
-        x.value = 0;
-        y.value = 0;
+      displacementX.value =
+        Math.sign(x.value) * Math.log2(1 + Math.abs(x.value) ** 2);
+      displacementY.value =
+        Math.sign(y.value) * Math.log2(1 + Math.abs(y.value) ** 2);
+      scale.value = Math.log2(2 + Math.sqrt(x.value ** 2 + y.value ** 2) / 256);
+      if (scale.value > 1.8) {
+        runOnJS(setAboutToDevolve)(true);
       }
     })
-    .onEnd(() => ((x.value = withSpring(0)), (y.value = withSpring(0))));
+    .onEnd(
+      () => (
+        (displacementX.value = withSpring(0)),
+        ((displacementY.value = withSpring(0)),
+        (x.value = 0),
+        (y.value = 0),
+        (scale.value = withSpring(1)))
+      )
+    );
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
       transform: [
-        { scaleX: Math.log2(2 + Math.abs(x.value) / 256) },
-        { scaleY: Math.log2(2 + Math.abs(y.value) / 256) },
+        { scale: scale.value },
         {
-          translateX:
-            Math.sign(x.value) * Math.log2(1 + Math.abs(x.value) ** 2),
+          translateX: displacementX.value,
         },
         {
-          translateY:
-            Math.sign(y.value) * Math.log2(1 + Math.abs(y.value) ** 2),
+          translateY: displacementY.value,
         },
       ],
     };
   });
+
+  const devolve = (props: DevolveProps) => {
+    props.setAboutToDevolve(false);
+    props.setFavouritePokemon(prev);
+    x.value = 0;
+    y.value = 0;
+  };
+
+  useEffect(() => {
+    if (scale.value != 1) {
+      displacementX.value = withTiming(0, {
+        duration: 1500,
+        easing: Easing.bounce,
+      });
+      displacementX.value = withTiming(0, {
+        duration: 1500,
+        easing: Easing.bounce,
+      });
+      scale.value = withTiming(0, { duration: 2000 }, () =>
+        runOnJS(devolve)({
+          setAboutToDevolve: setAboutToDevolve,
+          setFavouritePokemon: setFavouritePokemon,
+        })
+      );
+    }
+  }, [aboutToDevolve]);
+
+  useEffect(() => {
+    if (scale.value != 1) {
+      cancelAnimation(scale);
+      scale.value = withTiming(1, { duration: 2000 });
+    }
+  }, [favouritePokemon]);
 
   if (favouritePokemon == null)
     return (
@@ -142,15 +188,25 @@ export default function FavouritePokemonTab() {
     return (
       <View style={styles.favouriteContainer}>
         <Text style={styles.pokemonText}>{favouritePokemon}</Text>
-        <GestureDetector gesture={panGesture}>
-          <View>
+        {aboutToDevolve ? (
+          <View style={{ zIndex: 10 }}>
             <Animated.Image
               key={favouritePokemon}
               style={[styles.favouritePokemonImage, animatedStyle]}
               source={{ uri: imageLink }}
             />
           </View>
-        </GestureDetector>
+        ) : (
+          <GestureDetector gesture={panGesture}>
+            <View style={{ zIndex: 10 }}>
+              <Animated.Image
+                key={favouritePokemon}
+                style={[styles.favouritePokemonImage, animatedStyle]}
+                source={{ uri: imageLink }}
+              />
+            </View>
+          </GestureDetector>
+        )}
         <View style={{ zIndex: 0 }}>
           <Text>height: {pokemonData.height * 10}cm</Text>
           <Text>

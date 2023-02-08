@@ -1,4 +1,3 @@
-//import "./wdyr.tsx";
 import {
   useState,
   useContext,
@@ -12,11 +11,7 @@ import FavouritePokemonTab from "./components/FavouritePokemonTab";
 import PokemonListTab from "./components/PokemonListTab";
 import PokemonMapTab from "./components/PokemonMapTap";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-
-interface FavouritePokemonProp {
-  favouritePokemon: string | number | null;
-  setFavouritePokemon: Dispatch<SetStateAction<string | number | null>>;
-}
+import { FavouriteContext } from "./contexts/FavouriteContext";
 
 export default function App() {
   const Tab = createBottomTabNavigator();
@@ -24,17 +19,19 @@ export default function App() {
   const [favouritePokemon, setFavouritePokemon] = useState<
     string | number | null
   >(null);
-  const FavouriteContext = createContext<FavouritePokemonProp>({
-    favouritePokemon: favouritePokemon,
-    setFavouritePokemon: setFavouritePokemon,
-  });
 
   return (
-    <FavouriteContext.Provider value={(favouritePokemon, setFavouritePokemon)}>
+    <FavouriteContext.Provider
+      value={{
+        favouritePokemon: favouritePokemon,
+        setFavouritePokemon: setFavouritePokemon,
+      }}
+    >
       <NavigationContainer>
         <Tab.Navigator initialRouteName="Favourite Pokemon">
           <Tab.Screen
             name="Favourite Pokemon"
+            component={FavouritePokemonTab}
             options={{
               tabBarIcon: () => {
                 return (
@@ -47,17 +44,10 @@ export default function App() {
                 );
               },
             }}
-          >
-            {(props) => (
-              <FavouritePokemonTab
-                favouritePokemon={favouritePokemon}
-                setFavouritePokemon={setFavouritePokemon}
-                {...props}
-              />
-            )}
-          </Tab.Screen>
+          />
           <Tab.Screen
             name="Pokemon List"
+            component={PokemonListTab}
             options={{
               tabBarIcon: () => {
                 return (
@@ -68,15 +58,7 @@ export default function App() {
                 );
               },
             }}
-          >
-            {(props) => (
-              <PokemonListTab
-                favouritePokemon={favouritePokemon}
-                setFavouritePokemon={setFavouritePokemon}
-                {...props}
-              />
-            )}
-          </Tab.Screen>
+          />
           <Tab.Screen
             name="Pokemon Map"
             component={PokemonMapTab}

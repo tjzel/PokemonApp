@@ -1,4 +1,4 @@
-import { useState, useEffect, Dispatch } from "react";
+import { useState, useEffect, useContext } from "react";
 import { StyleSheet, Text, View, Image, FlatList } from "react-native";
 import UnfavouriteButton from "./UnfavouriteButton";
 import Animated, {
@@ -18,11 +18,7 @@ import {
 } from "react-native-gesture-handler";
 import { PanGesture } from "react-native-gesture-handler/lib/typescript/handlers/gestures/panGesture";
 import { PinchGesture } from "react-native-gesture-handler/lib/typescript/handlers/gestures/pinchGesture";
-
-interface Props {
-  favouritePokemon: string | number | null;
-  setFavouritePokemon: Dispatch<string | number | null>;
-}
+import { FavouriteContext } from "../contexts/FavouriteContext";
 
 interface Type {
   name: string;
@@ -37,10 +33,7 @@ interface PokemonData {
   }>;
 }
 
-export default function FavouritePokemonTab({
-  favouritePokemon,
-  setFavouritePokemon,
-}: Props) {
+export default function FavouritePokemonTab() {
   const [forceRerender, setForceRerender] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<unknown>();
@@ -49,6 +42,8 @@ export default function FavouritePokemonTab({
   const [prev, setPrev] = useState<string | number | null>(null);
   const imageLinkPrefix =
     "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
+  const favouritePokemon = useContext(FavouriteContext).favouritePokemon;
+  const setFavouritePokemon = useContext(FavouriteContext).setFavouritePokemon;
   useEffect(() => {
     if (favouritePokemon == null) {
       return;
@@ -136,7 +131,7 @@ export default function FavouritePokemonTab({
         <Text style={styles.noPokemonText}>Loading...</Text>
       </View>
     );
-  if (pokemonData)
+  if (pokemonData && setFavouritePokemon)
     return (
       <View style={styles.favouriteContainer}>
         <Text style={styles.pokemonText}>{favouritePokemon}</Text>
@@ -170,7 +165,7 @@ export default function FavouritePokemonTab({
             />
           </View>
         </View>
-        <UnfavouriteButton setFavouritePokemon={setFavouritePokemon} />
+        <UnfavouriteButton />
       </View>
     );
   return null;

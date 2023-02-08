@@ -6,23 +6,18 @@ import {
   Pressable,
   Image,
 } from "react-native";
-import { useState, useEffect, useRef, Dispatch } from "react";
+import { useState, useEffect, useRef, Dispatch, useContext } from "react";
 import { FontAwesome } from "@expo/vector-icons";
-
-interface Props {
-  favouritePokemon: string | number | null;
-  setFavouritePokemon: Dispatch<string | number | null>;
-}
+import { FavouriteContext } from "../contexts/FavouriteContext";
 
 interface PokemonListElement {
   name: string;
   url: string;
 }
 
-export default function PokemonListTab({
-  favouritePokemon,
-  setFavouritePokemon,
-}: Props) {
+export default function PokemonListTab() {
+  const favouritePokemon = useContext(FavouriteContext).favouritePokemon;
+  const setFavouritePokemon = useContext(FavouriteContext).setFavouritePokemon;
   const [pokemonList, setPokemonList] = useState<Array<PokemonListElement>>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [hotLoading, setHotLoading] = useState<boolean>(true);
@@ -83,7 +78,7 @@ export default function PokemonListTab({
     <View style={styles.listContainer}>
       {loading && <Text>...</Text>}
       {error != undefined && <Text>Error...</Text>}
-      {
+      {setFavouritePokemon && (
         <FlatList
           data={pokemonList}
           keyExtractor={(item) => item.name}
@@ -129,7 +124,7 @@ export default function PokemonListTab({
             );
           }}
         />
-      }
+      )}
     </View>
   );
 }

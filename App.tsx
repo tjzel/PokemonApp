@@ -1,8 +1,7 @@
 import "./wdyr.tsx";
 import { useState } from "react";
-import { StyleSheet, Text, View, Image, Pressable } from "react-native";
+import { StyleSheet, Image } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import FavouritePokemonTab from "./components/FavouritePokemonTab";
 import PokemonListTab from "./components/PokemonListTab";
 import PokemonMapTab from "./components/PokemonMapTap";

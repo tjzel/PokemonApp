@@ -42,16 +42,6 @@ export default function PinPokemonMenu({
   const [hotLoading, setHotLoading] = useState<boolean>(false);
   const [error, setError] = useState<unknown>();
 
-  // function loadList() {
-  //   console.log("ll");
-  //   const { data, error } = useFetch<Post>(pokeApiLink.current);
-  //   if (error) return;
-  //   if (data) {
-  //     pokeApiLink.current = data.next;
-  //     listData.current = Array.prototype.concat(listData.current, data.results);
-  //   }
-  // }
-
   function loadList() {
     setLoading(true);
     (async () => {

@@ -1,13 +1,14 @@
-import { useContext, useState } from "react";
+import { Dispatch, SetStateAction, useContext, useState } from "react";
 import { StyleSheet, Text, Pressable } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { FavouriteContext } from "../contexts/FavouriteContext";
 
 export default function UnfavouriteButton() {
-  const setFavouritePokemon = useContext(FavouriteContext).setFavouritePokemon;
+  const setFavouritePokemon = useContext(FavouriteContext)
+    .setFavouritePokemon as Dispatch<SetStateAction<string | number | null>>;
   const [inProgress, setInProgress] = useState(false);
 
-  if (inProgress == false || !setFavouritePokemon)
+  if (inProgress == false)
     return (
       <Pressable style={styles.button} onPress={() => setInProgress(true)}>
         <FontAwesome name="trash-o" size={30} color="black" />

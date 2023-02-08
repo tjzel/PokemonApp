@@ -1,4 +1,10 @@
-import { useState, useEffect, useContext } from "react";
+import {
+  useState,
+  useEffect,
+  useContext,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import { StyleSheet, Text, View, Image, FlatList } from "react-native";
 import UnfavouriteButton from "./UnfavouriteButton";
 import Animated, {
@@ -43,7 +49,8 @@ export default function FavouritePokemonTab() {
   const imageLinkPrefix =
     "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/";
   const favouritePokemon = useContext(FavouriteContext).favouritePokemon;
-  const setFavouritePokemon = useContext(FavouriteContext).setFavouritePokemon;
+  const setFavouritePokemon = useContext(FavouriteContext)
+    .setFavouritePokemon as Dispatch<SetStateAction<string | number | null>>;
   useEffect(() => {
     if (favouritePokemon == null) {
       return;
@@ -131,7 +138,7 @@ export default function FavouritePokemonTab() {
         <Text style={styles.noPokemonText}>Loading...</Text>
       </View>
     );
-  if (pokemonData && setFavouritePokemon)
+  if (pokemonData)
     return (
       <View style={styles.favouriteContainer}>
         <Text style={styles.pokemonText}>{favouritePokemon}</Text>

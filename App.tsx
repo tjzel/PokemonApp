@@ -1,26 +1,11 @@
-<<<<<<< HEAD
-import "./wdyr.tsx";
 import { useState } from "react";
-=======
-import {
-  useState,
-  useContext,
-  createContext,
-  SetStateAction,
-  Dispatch,
-} from "react";
->>>>>>> master
 import { StyleSheet, Image } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import FavouritePokemonTab from "./components/FavouritePokemonTab";
 import PokemonListTab from "./components/PokemonListTab";
 import PokemonMapTab from "./components/PokemonMapTap";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-<<<<<<< HEAD
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-=======
 import { FavouriteContext } from "./contexts/FavouriteContext";
->>>>>>> master
 
 export default function App() {
   const Tab = createBottomTabNavigator();
@@ -30,24 +15,17 @@ export default function App() {
   >(null);
 
   return (
-<<<<<<< HEAD
-    <GestureHandlerRootView style={{ flex: 1 }}>
-=======
     <FavouriteContext.Provider
       value={{
         favouritePokemon: favouritePokemon,
         setFavouritePokemon: setFavouritePokemon,
       }}
     >
->>>>>>> master
       <NavigationContainer>
         <Tab.Navigator initialRouteName="Favourite Pokemon">
           <Tab.Screen
             name="Favourite Pokemon"
-<<<<<<< HEAD
-=======
             component={FavouritePokemonTab}
->>>>>>> master
             options={{
               tabBarIcon: () => {
                 return (
@@ -60,24 +38,10 @@ export default function App() {
                 );
               },
             }}
-<<<<<<< HEAD
-          >
-            {(props) => (
-              <FavouritePokemonTab
-                favouritePokemon={favouritePokemon}
-                setFavouritePokemon={setFavouritePokemon}
-                {...props}
-              />
-            )}
-          </Tab.Screen>
-          <Tab.Screen
-            name="Pokemon List"
-=======
           />
           <Tab.Screen
             name="Pokemon List"
             component={PokemonListTab}
->>>>>>> master
             options={{
               tabBarIcon: () => {
                 return (
@@ -88,19 +52,7 @@ export default function App() {
                 );
               },
             }}
-<<<<<<< HEAD
-          >
-            {(props) => (
-              <PokemonListTab
-                favouritePokemon={favouritePokemon}
-                setFavouritePokemon={setFavouritePokemon}
-                {...props}
-              />
-            )}
-          </Tab.Screen>
-=======
           />
->>>>>>> master
           <Tab.Screen
             name="Pokemon Map"
             component={PokemonMapTab}
@@ -119,11 +71,7 @@ export default function App() {
           />
         </Tab.Navigator>
       </NavigationContainer>
-<<<<<<< HEAD
-    </GestureHandlerRootView>
-=======
     </FavouriteContext.Provider>
->>>>>>> master
   );
 }
 
